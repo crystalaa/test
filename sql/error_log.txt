@@ -1,0 +1,6 @@
+2025-08-17 17:59:14,263 - ERROR - Traceback (most recent call last):
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/ui_components.py", line 247, in compare_files
+    def compare_files(self):
+    
+KeyboardInterrupt
+
