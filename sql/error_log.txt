@@ -4,3 +4,310 @@
     
 KeyboardInterrupt
 
+2025-08-17 18:36:19,311 - ERROR - Traceback (most recent call last):
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/comparator.py", line 297, in run
+    if not init_database():
+           ^^^^^^^^^^^^^^^
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/comparator.py", line 29, in init_database
+    engine = create_engine(
+             ^^^^^^^^^^^^^^
+  File "<string>", line 2, in create_engine
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/sqlalchemy/util/deprecations.py", line 281, in warned
+    return fn(*args, **kwargs)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/sqlalchemy/engine/create.py", line 617, in create_engine
+    dbapi = dbapi_meth(**dbapi_args)
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/sqlalchemy/dialects/mysql/pymysql.py", line 89, in import_dbapi
+    return __import__("pymysql")
+           ^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'pymysql'
+
+2025-08-17 19:00:10,934 - ERROR - Traceback (most recent call last):
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/mysql/connector/connection_cext.py", line 772, in cmd_query
+    self._cmysql.query(
+_mysql_connector.MySQLInterfaceError: Unknown column 't1.原资产编码' in 'field list'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/db_handler.py", line 154, in execute_query
+    cursor.execute(query)
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/mysql/connector/cursor_cext.py", line 353, in execute
+    self._connection.cmd_query(
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/mysql/connector/opentelemetry/context_propagation.py", line 97, in wrapper
+    return method(cnx, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/mysql/connector/connection_cext.py", line 781, in cmd_query
+    raise get_mysql_exception(
+mysql.connector.errors.ProgrammingError: 1054 (42S22): Unknown column 't1.原资产编码' in 'field list'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/comparator.py", line 403, in run
+    diff_df = diff_by_mysql(self.primary_keys)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/db_handler.py", line 247, in diff_by_mysql
+    return execute_query(sql)
+           ^^^^^^^^^^^^^^^^^^
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/db_handler.py", line 168, in execute_query
+    raise Exception(f"执行查询失败: {str(e)}")
+Exception: 执行查询失败: 1054 (42S22): Unknown column 't1.原资产编码' in 'field list'
+
+2025-08-17 19:11:02,969 - ERROR - Traceback (most recent call last):
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/mysql/connector/connection_cext.py", line 772, in cmd_query
+    self._cmysql.query(
+_mysql_connector.MySQLInterfaceError: Unknown column 't1.原资产编码' in 'field list'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/db_handler.py", line 154, in execute_query
+    cursor.execute(query)
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/mysql/connector/cursor_cext.py", line 353, in execute
+    self._connection.cmd_query(
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/mysql/connector/opentelemetry/context_propagation.py", line 97, in wrapper
+    return method(cnx, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/mysql/connector/connection_cext.py", line 781, in cmd_query
+    raise get_mysql_exception(
+mysql.connector.errors.ProgrammingError: 1054 (42S22): Unknown column 't1.原资产编码' in 'field list'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/comparator.py", line 403, in run
+    diff_df = diff_by_mysql(self.primary_keys)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/db_handler.py", line 247, in diff_by_mysql
+    return execute_query(sql)
+           ^^^^^^^^^^^^^^^^^^
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/db_handler.py", line 168, in execute_query
+    raise Exception(f"执行查询失败: {str(e)}")
+Exception: 执行查询失败: 1054 (42S22): Unknown column 't1.原资产编码' in 'field list'
+
+2025-08-17 19:13:48,303 - ERROR - Traceback (most recent call last):
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/mysql/connector/connection_cext.py", line 772, in cmd_query
+    self._cmysql.query(
+_mysql_connector.MySQLInterfaceError: Unknown column 't1.原资产编码' in 'field list'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/db_handler.py", line 154, in execute_query
+    cursor.execute(query)
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/mysql/connector/cursor_cext.py", line 353, in execute
+    self._connection.cmd_query(
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/mysql/connector/opentelemetry/context_propagation.py", line 97, in wrapper
+    return method(cnx, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/mysql/connector/connection_cext.py", line 781, in cmd_query
+    raise get_mysql_exception(
+mysql.connector.errors.ProgrammingError: 1054 (42S22): Unknown column 't1.原资产编码' in 'field list'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/comparator.py", line 403, in run
+    diff_df = diff_by_mysql(self.primary_keys)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/db_handler.py", line 247, in diff_by_mysql
+    return execute_query(sql)
+           ^^^^^^^^^^^^^^^^^^
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/db_handler.py", line 168, in execute_query
+    raise Exception(f"执行查询失败: {str(e)}")
+Exception: 执行查询失败: 1054 (42S22): Unknown column 't1.原资产编码' in 'field list'
+
+2025-08-17 19:19:50,941 - ERROR - Traceback (most recent call last):
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/comparator.py", line 425, in run
+    diff_df = diff_by_mysql(self.primary_keys)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: diff_by_mysql() takes 0 positional arguments but 1 was given
+
+2025-08-17 19:37:28,431 - ERROR - Traceback (most recent call last):
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/mysql/connector/connection_cext.py", line 772, in cmd_query
+    self._cmysql.query(
+_mysql_connector.MySQLInterfaceError: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '' at line 19
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/db_handler.py", line 116, in execute_query
+    cursor.execute(query)
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/mysql/connector/cursor_cext.py", line 353, in execute
+    self._connection.cmd_query(
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/mysql/connector/opentelemetry/context_propagation.py", line 97, in wrapper
+    return method(cnx, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/mysql/connector/connection_cext.py", line 781, in cmd_query
+    raise get_mysql_exception(
+mysql.connector.errors.ProgrammingError: 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '' at line 19
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/comparator.py", line 192, in run
+    diff_df = self._diff_by_mysql()
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/comparator.py", line 156, in _diff_by_mysql
+    return execute_query(sql)
+           ^^^^^^^^^^^^^^^^^^
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/db_handler.py", line 123, in execute_query
+    raise Exception(f"执行查询失败: {str(e)}")
+Exception: 执行查询失败: 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '' at line 19
+
+2025-08-17 21:41:36,049 - ERROR - Traceback (most recent call last):
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/mysql/connector/connection_cext.py", line 772, in cmd_query
+    self._cmysql.query(
+_mysql_connector.MySQLInterfaceError: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '' at line 19
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/db_handler.py", line 116, in execute_query
+    cursor.execute(query)
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/mysql/connector/cursor_cext.py", line 353, in execute
+    self._connection.cmd_query(
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/mysql/connector/opentelemetry/context_propagation.py", line 97, in wrapper
+    return method(cnx, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/mysql/connector/connection_cext.py", line 781, in cmd_query
+    raise get_mysql_exception(
+mysql.connector.errors.ProgrammingError: 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '' at line 19
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/comparator.py", line 192, in run
+    diff_df = self._diff_by_mysql()
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/comparator.py", line 156, in _diff_by_mysql
+    return execute_query(sql)
+           ^^^^^^^^^^^^^^^^^^
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/db_handler.py", line 123, in execute_query
+    raise Exception(f"执行查询失败: {str(e)}")
+Exception: 执行查询失败: 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '' at line 19
+
+2025-08-17 21:57:41,116 - ERROR - Traceback (most recent call last):
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/mysql/connector/connection_cext.py", line 772, in cmd_query
+    self._cmysql.query(
+_mysql_connector.MySQLInterfaceError: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '' at line 19
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/db_handler.py", line 116, in execute_query
+    cursor.execute(query)
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/mysql/connector/cursor_cext.py", line 353, in execute
+    self._connection.cmd_query(
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/mysql/connector/opentelemetry/context_propagation.py", line 97, in wrapper
+    return method(cnx, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/mysql/connector/connection_cext.py", line 781, in cmd_query
+    raise get_mysql_exception(
+mysql.connector.errors.ProgrammingError: 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '' at line 19
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/comparator.py", line 192, in run
+    diff_df = self._diff_by_mysql()
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/comparator.py", line 156, in _diff_by_mysql
+    return execute_query(sql)
+           ^^^^^^^^^^^^^^^^^^
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/db_handler.py", line 123, in execute_query
+    raise Exception(f"执行查询失败: {str(e)}")
+Exception: 执行查询失败: 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '' at line 19
+
+2025-08-17 22:06:21,467 - ERROR - Traceback (most recent call last):
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/mysql/connector/connection_cext.py", line 772, in cmd_query
+    self._cmysql.query(
+_mysql_connector.MySQLInterfaceError: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '' at line 19
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/db_handler.py", line 116, in execute_query
+    cursor.execute(query)
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/mysql/connector/cursor_cext.py", line 353, in execute
+    self._connection.cmd_query(
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/mysql/connector/opentelemetry/context_propagation.py", line 97, in wrapper
+    return method(cnx, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/mysql/connector/connection_cext.py", line 781, in cmd_query
+    raise get_mysql_exception(
+mysql.connector.errors.ProgrammingError: 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '' at line 19
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/comparator.py", line 192, in run
+    diff_df = self._diff_by_mysql()
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/comparator.py", line 156, in _diff_by_mysql
+    return execute_query(sql)
+           ^^^^^^^^^^^^^^^^^^
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/db_handler.py", line 123, in execute_query
+    raise Exception(f"执行查询失败: {str(e)}")
+Exception: 执行查询失败: 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '' at line 19
+
+2025-08-17 22:37:50,843 - ERROR - Traceback (most recent call last):
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/mysql/connector/connection_cext.py", line 772, in cmd_query
+    self._cmysql.query(
+_mysql_connector.MySQLInterfaceError: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '' at line 19
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/db_handler.py", line 116, in execute_query
+    cursor.execute(query)
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/mysql/connector/cursor_cext.py", line 353, in execute
+    self._connection.cmd_query(
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/mysql/connector/opentelemetry/context_propagation.py", line 97, in wrapper
+    return method(cnx, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/mysql/connector/connection_cext.py", line 781, in cmd_query
+    raise get_mysql_exception(
+mysql.connector.errors.ProgrammingError: 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '' at line 19
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/comparator.py", line 191, in run
+    diff_df = self._diff_by_mysql()
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/comparator.py", line 155, in _diff_by_mysql
+    return execute_query(sql)
+           ^^^^^^^^^^^^^^^^^^
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/db_handler.py", line 123, in execute_query
+    raise Exception(f"执行查询失败: {str(e)}")
+Exception: 执行查询失败: 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '' at line 19
+
+2025-08-18 20:54:23,385 - ERROR - Traceback (most recent call last):
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/comparator.py", line 264, in run
+    df2_common = df2_common[all_needed_columns]
+                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/pandas/core/frame.py", line 4108, in __getitem__
+    indexer = self.columns._get_indexer_strict(key, "columns")[1]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/pandas/core/indexes/base.py", line 6200, in _get_indexer_strict
+    self._raise_if_missing(keyarr, indexer, axis_name)
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/pandas/core/indexes/base.py", line 6252, in _raise_if_missing
+    raise KeyError(f"{not_found} not in index")
+KeyError: "['线站电压等级', '入账日期', '监管资产属性', '开始使用日期', '所属线站名称', '单位名称', '资产分类', '期末余额_入账价值', '项目编码', '设备电压等级', '折旧方法', '期末余额_净值', '期末余额_累计折旧', 'WBS编码', '使用保管人', '关联实物管理系统代码', '是否战略性新兴产业资产', '原21版资产分类', '预计使用年限'] not in index"
+
+2025-08-18 20:57:28,134 - ERROR - Traceback (most recent call last):
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/comparator.py", line 264, in run
+    df2_common = df2_common[all_needed_columns]
+                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/pandas/core/frame.py", line 4108, in __getitem__
+    indexer = self.columns._get_indexer_strict(key, "columns")[1]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/pandas/core/indexes/base.py", line 6200, in _get_indexer_strict
+    self._raise_if_missing(keyarr, indexer, axis_name)
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/pandas/core/indexes/base.py", line 6252, in _raise_if_missing
+    raise KeyError(f"{not_found} not in index")
+KeyError: "['开始使用日期', '入账日期', '原21版资产分类', '期末余额_累计折旧', '监管资产属性', '资产分类', '线站电压等级', 'WBS编码', '使用保管人', '单位名称', '预计使用年限', '是否战略性新兴产业资产', '折旧方法', '期末余额_净值', '关联实物管理系统代码', '期末余额_入账价值', '项目编码', '所属线站名称', '设备电压等级'] not in index"
+
