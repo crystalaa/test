@@ -71,6 +71,22 @@ class CompareWorker(QThread):
 
         return str(value).strip()  # 其他情况返回原始值（保持原始大小写）
 
+    def _normalize_depreciation_method(self, value, is_file1=True):
+        """
+        标准化折旧方法字段值
+        如果是表二且值为"直线法"，则转换为"年限平均法"
+        """
+        if pd.isna(value) or value is None:
+            return ''
+
+        str_value = str(value).strip()
+
+        # 对于表二，将"直线法"转换为"年限平均法"
+        if not is_file1 and str_value == '直线法':
+            return '年限平均法'
+
+        return str_value
+
     def calculate_field(self, df, calc_rule, data_type):
         if not calc_rule:
             return None
@@ -100,11 +116,6 @@ class CompareWorker(QThread):
                 if missing:
                     raise Exception(f"表达式含不存在字段：{missing}")
                 df_num = df.copy()
-                for f in fields_in_rule:
-                    if "折旧" in f:
-                        df_num[f] = pd.to_numeric(df[f], errors='coerce').fillna(0).abs()
-                    else:
-                        df_num[f] = pd.to_numeric(df[f], errors='coerce').fillna(0)
                 return df_num.eval(calc_rule)
 
             raise Exception(f"不支持的数据类型：{data_type}")
@@ -195,6 +206,23 @@ class CompareWorker(QThread):
             pass  # 列已存在
         execute_query(f"UPDATE `{table}` SET `_pk_concat` = {expr}")
 
+    def _process_depreciation_fields(self, table):
+        """
+        处理表中包含"折旧"的数值字段，将其转换为绝对值
+        """
+        try:
+            for field_name, rule in self.rules.items():
+                # 如果是数值类型且字段名包含"折旧"
+                if rule.get("data_type") == "数值" and "折旧" in field_name:
+                    try:
+                        # 更新表中的数据，对折旧字段取绝对值
+                        execute_query(
+                            f"UPDATE `{table}` SET `{field_name}` = ABS(IFNULL(`{field_name}`, 0)) WHERE `{field_name}` IS NOT NULL")
+                    except Exception as e:
+                        self.log_signal.emit(f"处理表 {table} 的字段 {field_name} 时出错: {str(e)}")
+        except Exception as e:
+            self.log_signal.emit(f"处理折旧字段时发生错误: {str(e)}")
+
     def _add_calculated_fields(self, table, is_file1=True):
         """
         为表添加计算字段
@@ -207,8 +235,13 @@ class CompareWorker(QThread):
                     expr = self._build_field_expr(field_name, is_file1=False)
                     # 添加计算字段列
                     execute_query(f"ALTER TABLE `{table}` ADD COLUMN `_calc_{field_name}` DECIMAL(20,4)")
-                    # 填充计算字段值，处理可能的除零错误
-                    execute_query(f"UPDATE `{table}` SET `_calc_{field_name}` = COALESCE({expr}, 0)")
+                    # 如果是折旧相关字段，取绝对值
+                    if "折旧" in field_name:
+                        # 填充计算字段值，处理可能的除零错误，并取绝对值
+                        execute_query(f"UPDATE `{table}` SET `_calc_{field_name}` = ABS(COALESCE({expr}, 0))")
+                    else:
+                        # 填充计算字段值，处理可能的除零错误
+                        execute_query(f"UPDATE `{table}` SET `_calc_{field_name}` = COALESCE({expr}, 0)")
                 except Exception as e:
                     # 列可能已存在，忽略错误
                     pass
@@ -310,7 +343,13 @@ class CompareWorker(QThread):
                 diff_conditions.append(condition)
 
             elif data_type == "文本":
-                condition = f"NOT (IFNULL({src_field}, '') = '' AND IFNULL({tgt_field}, '') = '') AND TRIM(IFNULL({src_field}, '')) != TRIM(IFNULL({tgt_field}, ''))"
+                # 对于折旧方法字段，需要特殊处理表二中的"直线法"视为"年限平均法"
+                if "折旧方法" in field_name:
+                    # 在SQL中处理：如果表二字段是"直线法"，则替换为"年限平均法"进行比较
+                    adjusted_tgt_field = f"CASE WHEN TRIM(IFNULL({tgt_field}, '')) = '直线法' THEN '年限平均法' ELSE TRIM(IFNULL({tgt_field}, '')) END"
+                    condition = f"NOT (IFNULL({src_field}, '') = '' AND IFNULL({tgt_field}, '') = '') AND TRIM(IFNULL({src_field}, '')) != {adjusted_tgt_field}"
+                else:
+                    condition = f"NOT (IFNULL({src_field}, '') = '' AND IFNULL({tgt_field}, '') = '') AND TRIM(IFNULL({src_field}, '')) != TRIM(IFNULL({tgt_field}, ''))"
                 diff_conditions.append(condition)
 
             else:
@@ -413,6 +452,10 @@ class CompareWorker(QThread):
                 is_file1=False, skip_rows=self.skip_rows, chunk_size=self.chunk_size
             )
             self.log_signal.emit(f"✅ ERP表导入完成，共 {rows2} 行")
+
+            # 处理表二中的折旧字段，将其转换为绝对值
+            # self._process_depreciation_fields(TEMP_TABLE2)
+            # self.log_signal.emit("✅ ERP表折旧字段处理完成")
 
             # 2. 建索引
             create_compare_index(TEMP_TABLE1, ["_pk_concat"])
@@ -561,9 +604,14 @@ class CompareWorker(QThread):
 
                         # 对于文本字段，需要特殊处理标准化
                         elif rule.get("data_type") == "文本":
-                            # 对文本值进行标准化处理
-                            norm_src_text = self._normalize_text_value(src_value)
-                            norm_tgt_text = self._normalize_text_value(tgt_value)
+                            # 对折旧方法字段进行特殊处理
+                            if "折旧方法" in field_name:
+                                norm_src_text = self._normalize_depreciation_method(src_value, is_file1=True)
+                                norm_tgt_text = self._normalize_depreciation_method(tgt_value, is_file1=False)
+                            else:
+                                # 对其他文本值进行标准化处理
+                                norm_src_text = self._normalize_text_value(src_value)
+                                norm_tgt_text = self._normalize_text_value(tgt_value)
 
                             # 比较标准化后的值
                             if norm_src_text != norm_tgt_text:
@@ -620,3 +668,4 @@ class CompareWorker(QThread):
 
         # 其他情况返回原始值
         return date_str
+

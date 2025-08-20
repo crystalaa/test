@@ -98,8 +98,32 @@ def _insert_data(cursor, table_name, df):
     cols = [f"`{c}`" for c in df.columns]
     placeholders = ",".join(["%s"] * len(df.columns))
     sql = f"INSERT INTO `{table_name}` ({','.join(cols)}) VALUES ({placeholders})"
-    data = [tuple(str(v) if pd.notna(v) else None for v in row) for _, row in df.iterrows()]
-    cursor.executemany(sql, data)
+
+    # 判断是否为表二
+    is_table2 = table_name == 'temp_table2'
+
+    processed_data = []
+    for _, row in df.iterrows():
+        processed_row = []
+        for i, col_name in enumerate(df.columns):
+            value = row[col_name]
+            # 如果是表二且字段名包含"折旧"，则取绝对值
+            if is_table2 and "折旧" in col_name:
+                try:
+                    # 尝试将值转换为数值并取绝对值
+                    if pd.notna(value):
+                        numeric_value = float(value)
+                        processed_row.append(str(abs(numeric_value)))
+                    else:
+                        processed_row.append(None)
+                except (ValueError, TypeError):
+                    # 如果转换失败，保持原始值
+                    processed_row.append(str(value) if pd.notna(value) else None)
+            else:
+                processed_row.append(str(value) if pd.notna(value) else None)
+        processed_data.append(tuple(processed_row))
+
+    cursor.executemany(sql, processed_data)
 
 
 # =========================================================
