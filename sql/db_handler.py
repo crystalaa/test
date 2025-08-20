@@ -30,6 +30,7 @@ def init_database():
         cursor.execute(f"USE {DB_CONFIG['database']}")
         cursor.execute("DROP TABLE IF EXISTS temp_table1")
         cursor.execute("DROP TABLE IF EXISTS temp_table2")
+        cursor.execute("DROP TABLE IF EXISTS temp_mapping_table")
         conn.close()
         return True
     except Exception as e:
@@ -80,6 +81,67 @@ def import_excel_to_db(file_path, sheet_name, table_name, is_file1=True, skip_ro
     except Exception as e:
         raise Exception(f"导入Excel到数据库失败: {str(e)}")
 
+def prepare_asset_category_mapping(rules, rule_file):
+    """
+          预先准备资产分类映射表数据
+          """
+    # 检查是否有资产分类字段需要对比
+    has_asset_category = any(field_name == "资产分类" for field_name in rules.keys())
+    if not has_asset_category:
+        return False
+    try:
+        conn = mysql.connector.connect(**DB_CONFIG)
+        cursor = conn.cursor()
+        cursor.execute(f"USE {DB_CONFIG['database']}")
+        conn.autocommit = True
+        # 加载资产分类映射表
+        mapping_df = _load_asset_category_mapping(rule_file)
+        if mapping_df.empty or '同源目录完整名称' not in mapping_df.columns or '同源目录编码' not in mapping_df.columns:
+            return False
+        # 创建临时映射表
+        create_mapping_table_sql = """
+              CREATE TABLE temp_mapping_table (
+                  `同源目录完整名称` VARCHAR(255),
+                  `同源目录编码` VARCHAR(50)
+              )
+              """
+        cursor.execute(create_mapping_table_sql)
+        # 批量插入映射数据
+        if not mapping_df.empty:
+            # 准备批量插入数据
+            insert_data = []
+            for _, row in mapping_df.iterrows():
+                try:
+                    insert_data.append((str(row['同源目录完整名称']), str(row['同源目录编码'])))
+                except:
+                    continue
+
+            if insert_data:
+                insert_sql = """
+                      INSERT INTO temp_mapping_table (`同源目录完整名称`, `同源目录编码`)
+                      VALUES (%s, %s)
+                      """
+                # 分批插入，避免数据量过大
+                batch_size = 1000
+                for i in range(0, len(insert_data), batch_size):
+                    batch = insert_data[i:i + batch_size]
+                    cursor.executemany(insert_sql, batch)
+                    conn.commit()
+        conn.close()
+        return True
+    except Exception as e:
+        raise Exception(f"准备资产分类映射表时出错: {str(e)}")
+
+def _load_asset_category_mapping(rule_file):
+    """
+    从规则文件中加载资产分类映射表
+    """
+    try:
+        # 读取规则文件中的"资产分类映射表"页签，跳过第一行
+        mapping_df = pd.read_excel(rule_file, sheet_name='资产分类映射表', skiprows=1)
+        return mapping_df
+    except Exception as e:
+        raise Exception(f"读取资产分类映射表失败: {str(e)}")
 
 def _generate_create_table_sql(df, table_name):
     cols = [f"`{col}` LONGTEXT" for col in df.columns]
@@ -129,14 +191,18 @@ def _insert_data(cursor, table_name, df):
 # =========================================================
 # 通用查询
 # =========================================================
-def execute_query(query, params=None):
+# 修改 db_handler.py 中的 execute_query 方法
+def execute_query(query, params=None, executemany=False):
     """执行 SQL 并返回 DataFrame"""
     try:
         conn = mysql.connector.connect(**DB_CONFIG)
         conn.autocommit = True
         cursor = conn.cursor()
         if params:
-            cursor.execute(query, params)
+            if executemany:
+                cursor.executemany(query, params)
+            else:
+                cursor.execute(query, params)
         else:
             cursor.execute(query)
         columns = [desc[0] for desc in cursor.description] if cursor.description else []
@@ -146,6 +212,7 @@ def execute_query(query, params=None):
         return df
     except Exception as e:
         raise Exception(f"执行查询失败: {str(e)}")
+
 
 
 # =========================================================

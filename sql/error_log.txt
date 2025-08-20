@@ -311,3 +311,132 @@ KeyError: "['线站电压等级', '入账日期', '监管资产属性', '开始�
     raise KeyError(f"{not_found} not in index")
 KeyError: "['开始使用日期', '入账日期', '原21版资产分类', '期末余额_累计折旧', '监管资产属性', '资产分类', '线站电压等级', 'WBS编码', '使用保管人', '单位名称', '预计使用年限', '是否战略性新兴产业资产', '折旧方法', '期末余额_净值', '关联实物管理系统代码', '期末余额_入账价值', '项目编码', '所属线站名称', '设备电压等级'] not in index"
 
+2025-08-20 21:14:55,304 - ERROR - Traceback (most recent call last):
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/mysql/connector/connection_cext.py", line 772, in cmd_query
+    self._cmysql.query(
+_mysql_connector.MySQLInterfaceError: Table 'excel_compare.temp_mapping_table' doesn't exist
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/db_handler.py", line 207, in execute_query
+    cursor.executemany(query, params)
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/mysql/connector/cursor_cext.py", line 473, in executemany
+    return self.execute(cast(str, stmt))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/mysql/connector/cursor_cext.py", line 353, in execute
+    self._connection.cmd_query(
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/mysql/connector/opentelemetry/context_propagation.py", line 97, in wrapper
+    return method(cnx, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/mysql/connector/connection_cext.py", line 781, in cmd_query
+    raise get_mysql_exception(
+mysql.connector.errors.ProgrammingError: 1146 (42S02): Table 'excel_compare.temp_mapping_table' doesn't exist
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/db_handler.py", line 133, in prepare_asset_category_mapping
+    execute_query(insert_sql, batch, executemany=True)
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/db_handler.py", line 218, in execute_query
+    raise Exception(f"执行查询失败: {str(e)}")
+Exception: 执行查询失败: 1146 (42S02): Table 'excel_compare.temp_mapping_table' doesn't exist
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/comparator.py", line 475, in run
+    mapping_prepared = prepare_asset_category_mapping(self.rules, self.rule_file)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/db_handler.py", line 137, in prepare_asset_category_mapping
+    raise Exception(f"准备资产分类映射表时出错: {str(e)}")
+Exception: 准备资产分类映射表时出错: 执行查询失败: 1146 (42S02): Table 'excel_compare.temp_mapping_table' doesn't exist
+
+2025-08-20 21:17:31,007 - ERROR - Traceback (most recent call last):
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/mysql/connector/connection_cext.py", line 772, in cmd_query
+    self._cmysql.query(
+_mysql_connector.MySQLInterfaceError: Table 'excel_compare.temp_mapping_table' doesn't exist
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/db_handler.py", line 205, in execute_query
+    cursor.executemany(query, params)
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/mysql/connector/cursor_cext.py", line 473, in executemany
+    return self.execute(cast(str, stmt))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/mysql/connector/cursor_cext.py", line 353, in execute
+    self._connection.cmd_query(
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/mysql/connector/opentelemetry/context_propagation.py", line 97, in wrapper
+    return method(cnx, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/mysql/connector/connection_cext.py", line 781, in cmd_query
+    raise get_mysql_exception(
+mysql.connector.errors.ProgrammingError: 1146 (42S02): Table 'excel_compare.temp_mapping_table' doesn't exist
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/db_handler.py", line 132, in prepare_asset_category_mapping
+    execute_query(insert_sql, batch, executemany=True)
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/db_handler.py", line 216, in execute_query
+    raise Exception(f"执行查询失败: {str(e)}")
+Exception: 执行查询失败: 1146 (42S02): Table 'excel_compare.temp_mapping_table' doesn't exist
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/comparator.py", line 475, in run
+    mapping_prepared = prepare_asset_category_mapping(self.rules, self.rule_file)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/db_handler.py", line 135, in prepare_asset_category_mapping
+    raise Exception(f"准备资产分类映射表时出错: {str(e)}")
+Exception: 准备资产分类映射表时出错: 执行查询失败: 1146 (42S02): Table 'excel_compare.temp_mapping_table' doesn't exist
+
+2025-08-20 21:21:09,266 - ERROR - Traceback (most recent call last):
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/mysql/connector/connection_cext.py", line 772, in cmd_query
+    self._cmysql.query(
+_mysql_connector.MySQLInterfaceError: Table 'excel_compare.temp_mapping_table' doesn't exist
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/db_handler.py", line 205, in execute_query
+    cursor.executemany(query, params)
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/mysql/connector/cursor_cext.py", line 473, in executemany
+    return self.execute(cast(str, stmt))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/mysql/connector/cursor_cext.py", line 353, in execute
+    self._connection.cmd_query(
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/mysql/connector/opentelemetry/context_propagation.py", line 97, in wrapper
+    return method(cnx, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/.venv/lib/python3.12/site-packages/mysql/connector/connection_cext.py", line 781, in cmd_query
+    raise get_mysql_exception(
+mysql.connector.errors.ProgrammingError: 1146 (42S02): Table 'excel_compare.temp_mapping_table' doesn't exist
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/db_handler.py", line 132, in prepare_asset_category_mapping
+    execute_query(insert_sql, batch, executemany=True)
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/db_handler.py", line 216, in execute_query
+    raise Exception(f"执行查询失败: {str(e)}")
+Exception: 执行查询失败: 1146 (42S02): Table 'excel_compare.temp_mapping_table' doesn't exist
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/comparator.py", line 475, in run
+    mapping_prepared = prepare_asset_category_mapping(self.rules, self.rule_file)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/db_handler.py", line 135, in prepare_asset_category_mapping
+    raise Exception(f"准备资产分类映射表时出错: {str(e)}")
+Exception: 准备资产分类映射表时出错: 执行查询失败: 1146 (42S02): Table 'excel_compare.temp_mapping_table' doesn't exist
+
+2025-08-20 21:30:16,589 - ERROR - Traceback (most recent call last):
+  File "/Users/liuzongchen/PycharmProjects/pythonProject1/sql/comparator.py", line 632, in run
+    mapping_df = self._load_asset_category_mapping()
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'CompareWorker' object has no attribute '_load_asset_category_mapping'
+

@@ -5,13 +5,11 @@ import logging
 import pandas as pd
 import re
 import gc
-from concurrent.futures import ThreadPoolExecutor
 from PyQt5.QtCore import QThread, pyqtSignal
-from data_handler import read_excel_fast, read_mapping_table
 from rule_handler import read_enum_mapping, read_erp_combo_map
 from db_handler import (
     init_database, import_excel_to_db, execute_query, drop_tables,
-    create_compare_index, fetch_rows_by_pk
+    create_compare_index, fetch_rows_by_pk, prepare_asset_category_mapping, _load_asset_category_mapping
 )
 
 TEMP_TABLE1 = 'temp_table1'
@@ -85,7 +83,30 @@ class CompareWorker(QThread):
         if not is_file1 and str_value == '直线法':
             return '年限平均法'
 
-        return str_value
+        return str(value).strip()
+
+    def _extract_second_level(self, value):
+        """
+        从监管资产属性中提取二级分类
+        支持两种格式：
+        1. '输配电资产\省级电网资产' -> '省级电网资产'
+        2. '电力常规资产-省级电网资产' -> '省级电网资产'
+        """
+        if not value or value.strip() == '':
+            return ''
+
+        # 处理反斜杠分隔的格式
+        if '\\' in value:
+            parts = value.split('\\')
+            return parts[-1].strip() if len(parts) > 1 else value.strip()
+
+        # 处理短横线分隔的格式
+        if '-' in value:
+            parts = value.split('-')
+            return parts[-1].strip() if len(parts) > 1 else value.strip()
+
+        # 如果没有分隔符，返回原值
+        return value.strip()
 
     def calculate_field(self, df, calc_rule, data_type):
         if not calc_rule:
@@ -343,8 +364,29 @@ class CompareWorker(QThread):
                 diff_conditions.append(condition)
 
             elif data_type == "文本":
+                # 特殊处理资产分类字段
+                if field_name == "资产分类":
+                    # 对于资产分类，比较前两位编码（使用预先准备好的临时表）
+                    # 表二实际用于对比的字段是"资产明细类别"
+                    table2_field = "资产明细类别"
+                    condition = f"""
+                    NOT (IFNULL({src_field}, '') = '' AND IFNULL(t2.`{table2_field}`, '') = '') 
+                    AND (
+                        LEFT(
+                            IFNULL(
+                                (SELECT m.`同源目录编码` 
+                                 FROM temp_mapping_table m 
+                                 WHERE m.`同源目录完整名称` = {src_field} 
+                                 LIMIT 1), 
+                                {src_field}
+                            ), 
+                            2
+                        ) != LEFT(IFNULL(t2.`{table2_field}`, ''), 2)
+                    )
+                    """
+                    diff_conditions.append(condition)
                 # 对于折旧方法字段，需要特殊处理表二中的"直线法"视为"年限平均法"
-                if "折旧方法" in field_name:
+                elif "折旧方法" in field_name:
                     # 在SQL中处理：如果表二字段是"直线法"，则替换为"年限平均法"进行比较
                     adjusted_tgt_field = f"CASE WHEN TRIM(IFNULL({tgt_field}, '')) = '直线法' THEN '年限平均法' ELSE TRIM(IFNULL({tgt_field}, '')) END"
                     condition = f"NOT (IFNULL({src_field}, '') = '' AND IFNULL({tgt_field}, '') = '') AND TRIM(IFNULL({src_field}, '')) != {adjusted_tgt_field}"
@@ -391,6 +433,10 @@ class CompareWorker(QThread):
                     table2_field = rule.get("table2_field", f)
                     select_fields.append(f"t2.`{table2_field}` as tgt_{f}")
 
+        # 特别确保资产明细类别字段被包含在查询结果中
+        if "资产分类" in self.rules:
+            select_fields.append("t2.`资产明细类别` as tgt_资产明细类别")
+
         sql = f"""
         SELECT 
             {', '.join(select_fields)}
@@ -418,6 +464,10 @@ class CompareWorker(QThread):
                         if not self.rules[field].get("is_primary"):
                             src_data[field] = row[f"src_{field}"]
                             tgt_data[field] = row[f"tgt_{field}"]
+
+                    # 特别处理资产明细类别字段
+                    if "资产分类" in self.rules:
+                        tgt_data["资产明细类别"] = row["tgt_资产明细类别"]
 
                     diff_records.append({
                         "source": src_data,
@@ -453,9 +503,10 @@ class CompareWorker(QThread):
             )
             self.log_signal.emit(f"✅ ERP表导入完成，共 {rows2} 行")
 
-            # 处理表二中的折旧字段，将其转换为绝对值
-            # self._process_depreciation_fields(TEMP_TABLE2)
-            # self.log_signal.emit("✅ ERP表折旧字段处理完成")
+            # 预先准备资产分类映射表数据
+            mapping_prepared = prepare_asset_category_mapping(self.rules, self.rule_file)
+            if mapping_prepared:
+                self.log_signal.emit("✅ 资产分类映射表准备完成")
 
             # 2. 建索引
             create_compare_index(TEMP_TABLE1, ["_pk_concat"])
@@ -604,18 +655,67 @@ class CompareWorker(QThread):
 
                         # 对于文本字段，需要特殊处理标准化
                         elif rule.get("data_type") == "文本":
+                            # 特殊处理资产分类字段
+                            if field_name == "资产分类":
+                                if mapping_prepared:
+                                    # 获取映射表
+                                    mapping_df = _load_asset_category_mapping(self.rule_file)
+                                    if not mapping_df.empty and '同源目录完整名称' in mapping_df.columns and '同源目录编码' in mapping_df.columns:
+                                        # 创建映射字典
+                                        category_mapping = dict(zip(mapping_df['同源目录完整名称'].astype(str),
+                                                                    mapping_df['同源目录编码'].astype(str)))
+
+                                        # 获取表一的编码（通过映射）
+                                        src_code = category_mapping.get(str(src_value), str(src_value))
+                                        src_code_prefix = src_code[:2] if len(src_code) >= 2 else src_code
+
+                                        # 获取表二的"资产明细类别"字段值（实际用于对比的字段）
+                                        actual_tgt_value = tgt.get("资产明细类别", "")
+                                        tgt_code_prefix = str(actual_tgt_value)[:2] if len(
+                                            str(actual_tgt_value)) >= 2 else str(actual_tgt_value)
+
+                                        # 比较前两位
+                                        if src_code_prefix != tgt_code_prefix:
+                                            # 显示原始中文信息而不是编码
+                                            self.log_signal.emit(
+                                                f"    - {field_name}: 表一='{src_value}' ≠ 表二='{actual_tgt_value}' (编码前两位不匹配: {src_code_prefix} vs {tgt_code_prefix})")
+                                    else:
+                                        # 映射表不可用时的回退处理
+                                        norm_src_text = self._normalize_text_value(src_value)
+                                        norm_tgt_text = self._normalize_text_value(tgt_value)
+                                        if norm_src_text != norm_tgt_text:
+                                            self.log_signal.emit(
+                                                f"    - {field_name}: 表一='{src_value}' ≠ 表二='{tgt_value}'")
+                                else:
+                                    # 映射表未准备好的回退处理
+                                    norm_src_text = self._normalize_text_value(src_value)
+                                    norm_tgt_text = self._normalize_text_value(tgt_value)
+                                    if norm_src_text != norm_tgt_text:
+                                        self.log_signal.emit(
+                                            f"    - {field_name}: 表一='{src_value}' ≠ 表二='{tgt_value}'")
+                            # 特殊处理监管资产属性字段，只对比二级分类
+                            elif field_name == "监管资产属性":
+                                # 提取二级分类进行比较
+                                src_second_level = self._extract_second_level(str(src_value))
+                                tgt_second_level = self._extract_second_level(str(tgt_value))
+
+                                if src_second_level != tgt_second_level:
+                                    self.log_signal.emit(
+                                        f"    - {field_name}: 表一='{src_value}' ≠ 表二='{tgt_value}' (二级分类不匹配: '{src_second_level}' vs '{tgt_second_level}')")
                             # 对折旧方法字段进行特殊处理
-                            if "折旧方法" in field_name:
+                            elif "折旧方法" in field_name:
                                 norm_src_text = self._normalize_depreciation_method(src_value, is_file1=True)
                                 norm_tgt_text = self._normalize_depreciation_method(tgt_value, is_file1=False)
+                                # 比较标准化后的值
+                                if norm_src_text != norm_tgt_text:
+                                    self.log_signal.emit(f"    - {field_name}: 表一='{src_value}' ≠ 表二='{tgt_value}'")
                             else:
                                 # 对其他文本值进行标准化处理
                                 norm_src_text = self._normalize_text_value(src_value)
                                 norm_tgt_text = self._normalize_text_value(tgt_value)
-
-                            # 比较标准化后的值
-                            if norm_src_text != norm_tgt_text:
-                                self.log_signal.emit(f"    - {field_name}: 表一='{src_value}' ≠ 表二='{tgt_value}'")
+                                # 比较标准化后的值
+                                if norm_src_text != norm_tgt_text:
+                                    self.log_signal.emit(f"    - {field_name}: 表一='{src_value}' ≠ 表二='{tgt_value}'")
                         else:
                             # 其他类型按原逻辑比较
                             if norm_src != norm_tgt:
